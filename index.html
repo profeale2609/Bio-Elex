@@ -86,6 +86,19 @@
   .legend-item b{color:var(--petrol); font-family:'IBM Plex Mono',monospace;}
   .method-note{font-size:11.5px; color:var(--muted); font-style:italic; margin-top:4px;}
 
+  .pie-dual{display:flex; gap:24px; margin-bottom:16px;}
+  .pie-card{flex:1; background:var(--mist); border-radius:10px; padding:16px; text-align:center;}
+  .pie-card-title{font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); font-weight:600; margin-bottom:10px;}
+  .pie-card .donut-wrap{width:120px; height:120px; margin:0 auto 12px;}
+  .pie-card .donut{width:120px; height:120px;}
+  .pie-card .donut-hole{inset:18px;}
+  .pie-card .donut-hole .kg{font-size:14px;}
+  .pie-card .legend-item{font-size:12px; justify-content:center; margin-bottom:5px;}
+
+  .interp-box{background:#fff; border-left:3px solid var(--coral); border-radius:0 6px 6px 0; padding:10px 14px; margin:10px 0 4px; box-shadow:0 1px 2px rgba(0,0,0,0.04);}
+  .interp-box .il{font-size:9.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--coral); font-weight:700; margin-bottom:4px;}
+  .interp-box p{margin:0; font-size:12.5px; line-height:1.55; color:var(--ink);}
+
   .bar-compare{margin:14px 0 18px;}
   .bar-row{display:grid; grid-template-columns:110px 1fr 60px; align-items:center; gap:10px; margin-bottom:10px;}
   .bar-row .m-label{font-size:11px; color:var(--muted); text-align:right; line-height:1.2;}
@@ -213,6 +226,47 @@ function setSexo(s){
 function num(id){ const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? 0 : v; }
 function txt(id){ return document.getElementById(id).value || ''; }
 
+function fatCategory(pct, sexoM){
+  // Rangos de referencia orientativos (ACE / bibliografía kinantropométrica general)
+  const ranges = sexoM
+    ? [[0,14,'bajo / nivel atlético'],[14,21,'bueno / fitness'],[21,26,'promedio'],[26,999,'alto']]
+    : [[0,21,'bajo / nivel atlético'],[21,26,'bueno / fitness'],[26,33,'promedio'],[33,999,'alto']];
+  const r = ranges.find(([lo,hi]) => pct>=lo && pct<hi) || ranges[ranges.length-1];
+  return r[2];
+}
+
+function fatInterpretation(pctDurnin, pctYuhasz, sexoM, nombre){
+  const cat = fatCategory(pctDurnin, sexoM);
+  const quien = nombre || 'La persona evaluada';
+  let extra = '';
+  if (cat==='alto') extra = 'Se recomienda priorizar estrategias de reducción de grasa corporal combinando entrenamiento y ajuste nutricional.';
+  else if (cat==='promedio') extra = 'Hay margen de mejora en la composición corporal; un plan de entrenamiento y nutrición orientado puede optimizar este valor.';
+  else if (cat==='bueno / fitness') extra = 'Refleja una composición corporal saludable, propia de una persona activa.';
+  else extra = 'Refleja un nivel de grasa corporal muy bajo, típico de personas con entrenamiento físico exigente.';
+  return `Con ${fmt1(pctDurnin)}% de grasa corporal (método Durnin & Womersley), ${quien} se ubica en un nivel <b>${cat}</b> para su sexo. ${extra}`;
+}
+
+function indicesInterpretation(imc, icc, sexoM){
+  const cat = imcCat(imc);
+  let iccTxt = icc < (sexoM?0.9:0.85)
+    ? 'un índice cintura/cadera dentro de un rango saludable, con bajo riesgo de acumulación de grasa abdominal.'
+    : 'un índice cintura/cadera elevado, asociado a mayor concentración de grasa a nivel abdominal — conviene monitorear la salud cardiometabólica.';
+  return `Su IMC de ${fmt1(imc)} kg/m² lo ubica en la categoría <b>${cat}</b>. Como este índice no distingue masa muscular de masa grasa, conviene leerlo junto al % de grasa corporal de la sección anterior. Además, presenta ${iccTxt}`;
+}
+
+function somatoDescription(endo, meso, ecto){
+  const vals = {endo, meso, ecto};
+  const ordered = Object.entries(vals).sort((a,b)=>b[1]-a[1]);
+  const dom = ordered[0][0];
+  const desc = {
+    endo: 'predomina el componente adiposo: una estructura corporal más redondeada, con mayor tendencia natural a almacenar grasa. El entrenamiento de fuerza combinado con trabajo cardiovascular suele dar buenos resultados en este perfil.',
+    meso: 'predomina el componente muscular: buena base de fuerza, estructura ósea robusta y facilidad relativa para ganar masa muscular. Es un perfil que suele responder muy bien al entrenamiento de fuerza.',
+    ecto: 'predomina la linealidad corporal: estructura delgada, baja adiposidad y metabolismo típicamente más acelerado. Ganar masa muscular puede requerir más tiempo y un superávit calórico sostenido.',
+  };
+  return `El somatotipo indica que en esta persona ${desc[dom]}`;
+}
+
+
 function classify(endo, meso, ecto){
   const vals = {endo, meso, ecto};
   const label = {endo:'Endomorfo', meso:'Mesomorfo', ecto:'Ectomorfo'};
@@ -314,6 +368,10 @@ function render(){
 
   const gPct = d.peso>0 ? (d.kggrasaDurnin/d.peso*100) : 0;
   const mPct = 100-gPct;
+  const nombreShow = txt('nombre') ? (txt('nombre').charAt(0).toUpperCase()+txt('nombre').slice(1)) : 'La persona evaluada';
+  const fatInterp = fatInterpretation(gPct, d.pgrasoYuhasz, sexo==='M', nombreShow);
+  const indicesInterp = indicesInterpretation(d.imc, d.icc, sexo==='M');
+  const somaDesc = somatoDescription(d.endo, d.meso, d.ecto);
 
   document.getElementById('report').innerHTML = `
     <div class="r-eyebrow">Bio-Elex · Informe de composición corporal y somatotipo</div>
@@ -334,17 +392,28 @@ function render(){
     </div>
 
     <div class="r-section"><span class="num">1</span><span class="txt">Composición corporal</span></div>
-    <div class="comp-row">
-      <div class="donut-wrap">
-        <div class="donut" style="background:conic-gradient(var(--coral) 0% ${gPct}%, var(--petrol) ${gPct}% 100%)"></div>
-        <div class="donut-hole"><div class="kg">${fmt1(d.peso)} kg</div><div class="lbl">PESO TOTAL</div></div>
+    <div class="pie-dual">
+      <div class="pie-card">
+        <div class="pie-card-title">En kilogramos</div>
+        <div class="donut-wrap">
+          <div class="donut" style="background:conic-gradient(var(--coral) 0% ${gPct}%, var(--petrol) ${gPct}% 100%)"></div>
+          <div class="donut-hole"><div class="kg">${fmt1(d.peso)} kg</div><div class="lbl">PESO TOTAL</div></div>
+        </div>
+        <div class="legend-item"><span class="dot" style="background:var(--coral)"></span>Grasa: <b>${fmt1(d.kggrasaDurnin)} kg</b></div>
+        <div class="legend-item"><span class="dot" style="background:var(--petrol)"></span>Magra: <b>${fmt1(d.kgmagraDurnin)} kg</b></div>
       </div>
-      <div>
-        <div class="legend-item"><span class="dot" style="background:var(--coral)"></span>Masa grasa: <b>${fmt1(d.kggrasaDurnin)} kg (${fmt1(gPct)}%)</b></div>
-        <div class="legend-item"><span class="dot" style="background:var(--petrol)"></span>Masa libre de grasa: <b>${fmt1(d.kgmagraDurnin)} kg (${fmt1(mPct)}%)</b></div>
-        <div class="method-note">Método: Durnin &amp; Womersley (1974), suma de 4 pliegues.</div>
+      <div class="pie-card">
+        <div class="pie-card-title">En porcentaje</div>
+        <div class="donut-wrap">
+          <div class="donut" style="background:conic-gradient(var(--coral) 0% ${gPct}%, var(--petrol) ${gPct}% 100%)"></div>
+          <div class="donut-hole"><div class="kg">${fmt1(gPct)}%</div><div class="lbl">GRASA CORPORAL</div></div>
+        </div>
+        <div class="legend-item"><span class="dot" style="background:var(--coral)"></span>Grasa: <b>${fmt1(gPct)}%</b></div>
+        <div class="legend-item"><span class="dot" style="background:var(--petrol)"></span>Magra: <b>${fmt1(mPct)}%</b></div>
       </div>
     </div>
+    <div class="method-note" style="text-align:center; margin-bottom:6px;">Método: Durnin &amp; Womersley (1974), suma de 4 pliegues.</div>
+    <div class="interp-box"><div class="il">Interpretación</div><p>${fatInterp}</p></div>
 
     <div class="bar-compare">
       <div class="bar-row"><div class="m-label">Durnin &amp; Womersley (1974)</div>
@@ -377,6 +446,7 @@ function render(){
       <tr><td class="label">IMC modificado (kg/m²·⁵)</td><td class="value">${fmt1(d.imcMod)}</td><td class="ref"></td></tr>
       <tr><td class="label">Índice cintura / cadera</td><td class="value">${fmt2(d.icc)}</td><td class="ref">${d.icc<0.9?'Riesgo bajo (< 0.90)':'Riesgo elevado (≥ 0.90)'}</td></tr>
     </table>
+    <div class="interp-box"><div class="il">Interpretación</div><p>${indicesInterp}</p></div>
 
     <div class="r-section"><span class="num">3</span><span class="txt">Somatotipo (Heath–Carter)</span></div>
     <div class="soma-row">
@@ -390,6 +460,7 @@ function render(){
         <div class="soma-class">Clasificación: <b>${clasif}</b></div>
       </div>
     </div>
+    <div class="interp-box"><div class="il">Interpretación</div><p>${somaDesc}</p></div>
 
     <div class="stamp-row">
       <div class="stamp-text">
