@@ -132,6 +132,7 @@
   .soma-class b{color:var(--petrol);}
 
   .r-footer{margin-top:30px; padding-top:14px; border-top:1px solid var(--line); font-size:10.5px; color:var(--muted); line-height:1.5;}
+  .pdf-block{ }
 
   .stamp-row{display:flex; align-items:center; justify-content:flex-end; gap:14px; margin-top:22px;}
   .stamp-img{width:78px; height:78px; flex:none; transform:rotate(-6deg); filter:drop-shadow(0 2px 3px rgba(0,0,0,0.18));}
@@ -330,6 +331,20 @@ function imcCat(imc){
 function fmt1(v){ return isFinite(v) ? v.toFixed(1) : '–'; }
 function fmt2(v){ return isFinite(v) ? v.toFixed(2) : '–'; }
 
+function donutSVG(pct, size){
+  size = size || 170;
+  const stroke = size*0.155;
+  const r = (size-stroke)/2, cx = size/2, cy = size/2;
+  const circ = 2*Math.PI*r;
+  const grasaLen = Math.max(0, Math.min(100,pct))/100*circ;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#0B4F6C" stroke-width="${stroke}"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#FF6B35" stroke-width="${stroke}"
+      stroke-dasharray="${grasaLen} ${circ}" stroke-linecap="butt"
+      transform="rotate(-90 ${cx} ${cy})"/>
+  </svg>`;
+}
+
 function somaSVG(X, Y){
   const w=180,h=180, cx=w/2, cy=h/2, scale=8;
   const xr = Math.max(9, Math.abs(X)+2), yr = Math.max(10, Math.abs(Y)+3);
@@ -374,6 +389,7 @@ function render(){
   const somaDesc = somatoDescription(d.endo, d.meso, d.ecto);
 
   document.getElementById('report').innerHTML = `
+    <div class="pdf-block">
     <div class="r-eyebrow">Bio-Elex · Informe de composición corporal y somatotipo</div>
     <div class="r-title">Reporte de Evaluación Corporal</div>
     <div class="r-subtitle">Modelo de análisis estilo BodyPro Go / InBody · Basado en protocolo ISAK</div>
@@ -390,13 +406,15 @@ function render(){
       <div class="pcell"><div class="pl">Talla</div><div class="pv">${fmt1(d.talla)} cm</div></div>
       <div class="pcell"><div class="pl">IMC</div><div class="pv">${fmt1(d.imc)}</div></div>
     </div>
+    </div>
 
+    <div class="pdf-block">
     <div class="r-section"><span class="num">1</span><span class="txt">Composición corporal</span></div>
     <div class="pie-dual">
       <div class="pie-card">
         <div class="pie-card-title">En kilogramos</div>
         <div class="donut-wrap">
-          <div class="donut" style="background:conic-gradient(var(--coral) 0% ${gPct}%, var(--petrol) ${gPct}% 100%)"></div>
+          ${donutSVG(gPct, 120)}
           <div class="donut-hole"><div class="kg">${fmt1(d.peso)} kg</div><div class="lbl">PESO TOTAL</div></div>
         </div>
         <div class="legend-item"><span class="dot" style="background:var(--coral)"></span>Grasa: <b>${fmt1(d.kggrasaDurnin)} kg</b></div>
@@ -405,10 +423,11 @@ function render(){
       <div class="pie-card">
         <div class="pie-card-title">En porcentaje</div>
         <div class="donut-wrap">
-          <div class="donut" style="background:conic-gradient(var(--coral) 0% ${gPct}%, var(--petrol) ${gPct}% 100%)"></div>
+          ${donutSVG(gPct, 120)}
           <div class="donut-hole"><div class="kg">${fmt1(gPct)}%</div><div class="lbl">GRASA CORPORAL</div></div>
         </div>
         <div class="legend-item"><span class="dot" style="background:var(--coral)"></span>Grasa: <b>${fmt1(gPct)}%</b></div>
+
         <div class="legend-item"><span class="dot" style="background:var(--petrol)"></span>Magra: <b>${fmt1(mPct)}%</b></div>
       </div>
     </div>
@@ -427,7 +446,9 @@ function render(){
       <tr><td class="label">Suma de 6 pliegues</td><td class="value">${fmt1(d.sum6)} mm</td><td class="ref"></td></tr>
       <tr><td class="label">Suma de 8 pliegues</td><td class="value">${fmt1(d.sum8)} mm</td><td class="ref"></td></tr>
     </table>
+    </div>
 
+    <div class="pdf-block">
     <div class="r-section"><span class="num">2</span><span class="txt">Índices antropométricos</span></div>
     <div class="gauge-wrap">
       <div class="gauge">
@@ -447,7 +468,9 @@ function render(){
       <tr><td class="label">Índice cintura / cadera</td><td class="value">${fmt2(d.icc)}</td><td class="ref">${d.icc<0.9?'Riesgo bajo (< 0.90)':'Riesgo elevado (≥ 0.90)'}</td></tr>
     </table>
     <div class="interp-box"><div class="il">Interpretación</div><p>${indicesInterp}</p></div>
+    </div>
 
+    <div class="pdf-block">
     <div class="r-section"><span class="num">3</span><span class="txt">Somatotipo (Heath–Carter)</span></div>
     <div class="soma-row">
       <div class="soma-plot">${somaSVG(d.X,d.Y)}</div>
@@ -461,7 +484,9 @@ function render(){
       </div>
     </div>
     <div class="interp-box"><div class="il">Interpretación</div><p>${somaDesc}</p></div>
+    </div>
 
+    <div class="pdf-block">
     <div class="stamp-row">
       <div class="stamp-text">
         <div class="who">Alejandro Olave</div>
@@ -475,6 +500,7 @@ function render(){
       Mediciones tomadas con calibre tipo Harpenden / Holtain / Slim Guide / Gaucho-pro, según protocolo ISAK Nivel I.
       Los valores de referencia corresponden a sujetos de 20–30 años físicamente activos y deben interpretarse como orientativos, no como diagnóstico clínico.
     </div>
+    </div>
   `;
 }
 
@@ -485,23 +511,30 @@ async function downloadPDF(){
   btn.textContent = 'Generando…';
   btn.disabled = true;
   try{
-    const el = document.getElementById('report');
-    const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-    const imgData = canvas.toDataURL('image/png');
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = 210, pageHeight = 297;
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight, position = 0;
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+    // Carta / US Letter: 215.9 x 279.4 mm
+    const PAGE_W = 215.9, PAGE_H = 279.4, MARGIN = 12;
+    const usableW = PAGE_W - MARGIN*2;
+    const pdf = new jsPDF('p', 'mm', 'letter');
+
+    const blocks = Array.from(document.querySelectorAll('#report .pdf-block'));
+    let y = MARGIN;
+    let firstPage = true;
+
+    for (const block of blocks) {
+      const canvas = await html2canvas(block, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+      const imgData = canvas.toDataURL('image/png');
+      const hMM = (canvas.height * usableW) / canvas.width;
+
+      if (!firstPage && (y + hMM) > (PAGE_H - MARGIN)) {
+        pdf.addPage();
+        y = MARGIN;
+      }
+      pdf.addImage(imgData, 'PNG', MARGIN, y, usableW, hMM);
+      y += hMM + 6;
+      firstPage = false;
     }
+
     const nombre = (txt('nombre') || 'Cliente').replace(/\s+/g,'_');
     const apellido = (txt('apellido') || '').replace(/\s+/g,'_');
     pdf.save(`Informe_${nombre}_${apellido}.pdf`);
