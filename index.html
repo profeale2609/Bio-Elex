@@ -741,7 +741,7 @@ const FOOD_DB = {
     {n:'Huevo entero',u:'unidad (50g)',g100:50,p:6.3,c:0.6,f:5.3,kcal:78},
     {n:'Pechuga de pollo',u:'100g crudo',g100:100,p:23,c:0,f:2.7,kcal:120},
     {n:'Atún al agua (lata)',u:'100g escurrido',g100:100,p:26,c:0,f:1,kcal:116},
-    {n:'Carne molida económica (paleta)',u:'100g crudo',g100:100,p:20,c:0,f:10,kcal:172},
+    {n:'Carne molida (paleta)',u:'100g crudo',g100:100,p:20,c:0,f:10,kcal:172},
     {n:'Lentejas cocidas',u:'100g',g100:100,p:9,c:20,f:0.4,kcal:116},
     {n:'Porotos/frijoles cocidos',u:'100g',g100:100,p:8,c:23,f:0.5,kcal:127},
     {n:'Leche descremada',u:'100ml',g100:100,p:3.4,c:5,f:0.2,kcal:35},
@@ -770,7 +770,7 @@ const FOOD_DB = {
 const findFood = (list, name) => list.find(f => f.n === name);
 // Rotación semanal de proteínas para almuerzo/cena: se repiten más las que le gustan a la mayoría
 // (pollo, huevo, carne, atún) y las legumbres aparecen una vez por semana cada una.
-const PROT_ALMUERZO = ['Pechuga de pollo','Carne molida económica (paleta)','Atún al agua (lata)','Pechuga de pollo','Lentejas cocidas','Huevo entero','Porotos/frijoles cocidos'].map(n => findFood(FOOD_DB.proteina, n));
+const PROT_ALMUERZO = ['Pechuga de pollo','Carne molida (paleta)','Atún al agua (lata)','Pechuga de pollo','Lentejas cocidas','Huevo entero','Porotos/frijoles cocidos'].map(n => findFood(FOOD_DB.proteina, n));
 const CARB_ALMUERZO = FOOD_DB.carbohidrato.filter(f => ['Arroz blanco cocido','Papa cocida','Fideos / pasta cocida','Choclo / maíz'].includes(f.n));
 const PROT_LIVIANO = FOOD_DB.proteina.filter(f => ['Huevo entero','Yogur natural descremado','Leche descremada','Queso fresco / panela'].includes(f.n));
 const CARB_LIVIANO = FOOD_DB.carbohidrato.filter(f => ['Avena cruda','Pan integral','Plátano / banana'].includes(f.n));
@@ -778,6 +778,9 @@ const LACTEOS = FOOD_DB.proteina.filter(f => ['Leche descremada','Yogur natural 
 // El aceite de oliva se reserva para almuerzo/cena; el desayuno y la merienda usan otras grasas saludables
 const FAT_ALMUERZO = FOOD_DB.grasa.filter(f => ['Aceite de oliva','Palta'].includes(f.n));
 const FAT_LIVIANO = FOOD_DB.grasa.filter(f => ['Maní / mantequilla de maní','Mantequilla','Palta'].includes(f.n));
+// Cena: proteínas y carbohidratos más livianos, pensados para una comida simple y fácil
+const PROT_CENA = FOOD_DB.proteina.filter(f => ['Pechuga de pollo','Atún al agua (lata)','Huevo entero','Queso fresco / panela'].includes(f.n));
+const CARB_CENA = FOOD_DB.carbohidrato.filter(f => ['Pan integral','Papa cocida','Arroz blanco cocido'].includes(f.n));
 
 // Platos típicos chilenos según la proteína y el carbohidrato asignado (fáciles de preparar)
 const CHILEAN_DISHES = {
@@ -799,7 +802,7 @@ const CHILEAN_DISHES = {
       {t:'Bowl de pollo con choclo y palta', p:'Pollo en cubos, choclo, palta y verduras crudas en un mismo bowl.'},
     ],
   },
-  'Carne molida económica (paleta)': {
+  'Carne molida (paleta)': {
     'Arroz blanco cocido': [
       {t:'Arroz a la cubana', p:'Saltear la carne con cebolla y tomate; servir sobre arroz con huevo frito.'},
       {t:'Arroz con carne y verduras salteadas', p:'Saltear la carne molida con verduras variadas; mezclar con el arroz.'},
@@ -848,6 +851,20 @@ const CHILEAN_DISHES = {
     ],
   },
 };
+
+// Cenas simples y livianas (ensaladas / preparaciones rápidas, sin guisos pesados)
+const CENA_STYLES = [
+  {t:'Ensalada de {prot} con {carb}', p:'Mezclar la proteína con el carbohidrato y verduras frescas a elección; aliñar con limón, sal y aceite de oliva.'},
+  {t:'{prot} a la plancha con ensalada', p:'Cocinar la proteína a la plancha; acompañar con ensalada fresca y la porción de carbohidrato.'},
+  {t:'Wrap o sándwich liviano de {prot}', p:'Armar un sándwich o wrap con la proteína, verduras frescas y la porción de carbohidrato indicada.'},
+];
+function lightDinnerDish(protName, carbName, dayIdx){
+  const style = CENA_STYLES[(dayIdx||0) % CENA_STYLES.length];
+  return {
+    t: style.t.replace('{prot}', protName).replace('{carb}', carbName.toLowerCase()),
+    p: style.p,
+  };
+}
 
 function chileanDish(protName, carbName, dayIdx){
   const entry = CHILEAN_DISHES[protName];
@@ -935,12 +952,16 @@ function buildWeekPlan(plan){
   const dayNames = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
   const mealSplit = mealSplitFor(plan);
   const MAIN_MEALS = ['Almuerzo','Cena'];
+  const ALMUERZO_ONLY = ['Almuerzo'];
+  const CENA_ONLY = ['Cena'];
   for (let d=0; d<7; d++){
     const meals = mealSplit.map((meal, mi) => {
       const idx = d + mi;
       const isMain = MAIN_MEALS.includes(meal.n);
-      const protList = isMain ? PROT_ALMUERZO : PROT_LIVIANO;
-      const carbList = isMain ? CARB_ALMUERZO : CARB_LIVIANO;
+      const isLunch = ALMUERZO_ONLY.includes(meal.n);
+      const isDinner = CENA_ONLY.includes(meal.n);
+      const protList = isLunch ? PROT_ALMUERZO : (isDinner ? PROT_CENA : PROT_LIVIANO);
+      const carbList = isLunch ? CARB_ALMUERZO : (isDinner ? CARB_CENA : CARB_LIVIANO);
       const protFood0 = pickFood(protList, idx);
       const carbFood = pickFood(carbList, idx + d);
       // La avena queda mejor como mezcla con un lácteo (leche o yogur) en vez de otra proteína suelta
@@ -961,7 +982,7 @@ function buildWeekPlan(plan){
         {food:fatFood, grams:gFat},
       ];
       const kcalMeal = items.reduce((s,it)=>s+foodKcalForGrams(it.food,it.grams),0);
-      const dish = isMain ? chileanDish(protFood.n, carbFood.n, d) : null;
+      const dish = isLunch ? chileanDish(protFood.n, carbFood.n, d) : (isDinner ? lightDinnerDish(protFood.n, carbFood.n, d) : null);
       const isAvenaCombo = !isMain && carbFood.n === 'Avena cruda';
       return {label:meal.n, items, kcal:kcalMeal, isMain, dish, isAvenaCombo};
     });
