@@ -1,5 +1,5 @@
-const CACHE = "comp-corporal-v1";
-const ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
+const CACHE = "comp-corporal-v2";
+const ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./app-icon-192.png", "./app-icon-512.png"];
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();

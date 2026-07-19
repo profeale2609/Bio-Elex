@@ -6,8 +6,8 @@
 <title>Bio-Elex · Generador de Informes</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0B4F6C">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="app-icon-192.png">
+<link rel="apple-touch-icon" href="app-icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -52,6 +52,32 @@
   .sexo-toggle button.active{background:var(--petrol); color:#fff;}
 
   .action-bar{position:sticky; bottom:-1px; background:#fff; border-top:1px solid var(--line); margin-top:10px; padding-top:14px;}
+
+  .tabs{display:flex; gap:6px; margin-bottom:20px; background:var(--mist); border-radius:8px; padding:4px;}
+  .tab-btn{flex:1; padding:8px 6px; border:none; background:transparent; border-radius:6px; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:12px; color:var(--muted); cursor:pointer;}
+  .tab-btn.active{background:#fff; color:var(--petrol); box-shadow:0 1px 2px rgba(0,0,0,0.08);}
+
+  select{width:100%; padding:7px 8px; border:1px solid var(--line); border-radius:6px; font-family:'Inter',sans-serif; font-size:12.5px; color:var(--ink); background:var(--mist);}
+
+  .macro-cards{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:14px 0 8px;}
+  .macro-card{border-radius:8px; padding:12px; text-align:center; color:#fff;}
+  .macro-card .mv{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:18px;}
+  .macro-card .ml{font-size:9.5px; text-transform:uppercase; letter-spacing:0.04em; opacity:0.9; margin-top:2px;}
+  .macro-card .mp{font-size:10px; opacity:0.85; margin-top:2px;}
+
+  .kcal-hero{background:var(--petrol); color:#fff; border-radius:10px; padding:18px; text-align:center; margin-bottom:14px;}
+  .kcal-hero .big{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:32px;}
+  .kcal-hero .small{font-size:11px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.85; margin-top:2px;}
+
+  .day-card{border:1px solid var(--line); border-radius:8px; margin-bottom:12px; overflow:hidden; break-inside:avoid;}
+  .day-head{background:var(--mist); padding:8px 12px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12.5px; color:var(--petrol);}
+  .meal-row{display:grid; grid-template-columns:110px 1fr; gap:8px; padding:7px 12px; border-top:1px solid var(--line); font-size:11.5px;}
+  .meal-row .mname{font-weight:600; color:var(--petrol);}
+  .meal-row .mfoods{color:var(--ink); line-height:1.5;}
+  .meal-row .mfoods .fkcal{color:var(--muted); font-size:10px;}
+  .meal-row .dish-title{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; color:var(--coral); margin-bottom:2px;}
+  .meal-row .dish-prep{font-size:11px; color:var(--ink); font-style:italic; margin-bottom:4px; line-height:1.4;}
+  .meal-row .dish-ing{font-size:10.5px; color:var(--muted);}
   .btn-pdf{width:100%; padding:12px; background:var(--coral); color:#fff; border:none; border-radius:8px;
     font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; cursor:pointer; letter-spacing:0.02em;}
   .btn-pdf:hover{background:#e85a26;}
@@ -98,6 +124,16 @@
   .interp-box{background:#fff; border-left:3px solid var(--coral); border-radius:0 6px 6px 0; padding:10px 14px; margin:10px 0 4px; box-shadow:0 1px 2px rgba(0,0,0,0.04);}
   .interp-box .il{font-size:9.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--coral); font-weight:700; margin-bottom:4px;}
   .interp-box p{margin:0; font-size:12.5px; line-height:1.55; color:var(--ink);}
+
+  .segment-row{display:flex; align-items:center; gap:24px;}
+  .segment-body{flex:none;}
+  .segment-legend{flex:1; display:flex; flex-direction:column; gap:10px;}
+  .segment-item{display:flex; align-items:center; gap:10px;}
+  .segment-item .sdot{width:14px; height:14px; border-radius:4px; flex:none;}
+  .segment-item .slabel{font-size:12px; font-weight:700; color:var(--petrol); font-family:'Space Grotesk',sans-serif;}
+  .segment-item .svals{font-size:11.5px; color:var(--ink); font-family:'IBM Plex Mono',monospace;}
+  .segment-item .svals .fat{color:var(--coral); font-weight:600;}
+  .segment-item .svals .lean{color:var(--petrol); font-weight:600;}
 
   .bar-compare{margin:14px 0 18px;}
   .bar-row{display:grid; grid-template-columns:110px 1fr 60px; align-items:center; gap:10px; margin-bottom:10px;}
@@ -158,6 +194,12 @@
     <div class="brand"><img src="icon-192.png" class="brand-logo" alt="Bio-Elex"><span class="brand-title">Bio-Elex</span></div>
     <div class="brand-sub">Generador de informes · Protocolo ISAK</div>
 
+    <div class="tabs">
+      <button class="tab-btn active" id="tabBtnComp" onclick="switchTab('comp')">Informe corporal</button>
+      <button class="tab-btn" id="tabBtnNutri" onclick="switchTab('nutri')">Pauta nutricional</button>
+    </div>
+
+    <div id="form-comp">
     <div class="fgroup">
       <div class="fgroup-label">Datos <span class="n">01</span></div>
       <div class="frow"><div><label>Nombre</label><input id="nombre" type="text" placeholder="Magdalena"></div>
@@ -203,14 +245,62 @@
     </div>
 
     <div class="action-bar">
-      <button class="btn-pdf" id="btnDownload" onclick="downloadPDF()">Descargar PDF</button>
+      <button class="btn-pdf" id="btnDownload" onclick="downloadPDF('report-comp', 'Informe')">Descargar PDF</button>
       <div class="hint" id="pdfHint">Genera el PDF del informe de la derecha y lo descarga directo a tu teléfono o computadora, listo para enviar por WhatsApp.</div>
+    </div>
+    </div>
+
+    <div id="form-nutri" style="display:none">
+      <div class="fgroup">
+        <div class="fgroup-label">Datos <span class="n">01</span></div>
+        <div class="frow"><div><label>Nombre</label><input id="nNombre" type="text" placeholder="Magdalena"></div>
+        <div><label>Apellido</label><input id="nApellido" type="text" placeholder="Pavez"></div></div>
+        <div class="frow"><div><label>Sexo</label>
+          <div class="sexo-toggle"><button id="nBtnM" onclick="setNSexo('M')">M</button><button id="nBtnF" class="active" onclick="setNSexo('F')">F</button></div></div>
+        <div><label>Edad (años)</label><input id="nEdad" type="number" placeholder="28"></div></div>
+      </div>
+      <div class="fgroup">
+        <div class="fgroup-label">Básicas <span class="n">02</span></div>
+        <div class="frow"><div><label>Peso (kg)</label><input id="nPeso" type="number" step="0.1" placeholder="63.7"></div>
+        <div><label>Talla (cm)</label><input id="nTalla" type="number" step="0.1" placeholder="153"></div></div>
+      </div>
+      <div class="fgroup">
+        <div class="fgroup-label">Actividad y objetivo <span class="n">03</span></div>
+        <div class="frow full"><div><label>Nivel de actividad</label>
+          <select id="nActividad">
+            <option value="1.2">Sedentario (poco o nada de ejercicio)</option>
+            <option value="1.375">Ligero (1-3 días/semana)</option>
+            <option value="1.55" selected>Moderado (3-5 días/semana)</option>
+            <option value="1.725">Intenso (6-7 días/semana)</option>
+            <option value="1.9">Muy intenso (2x por día)</option>
+          </select>
+        </div></div>
+        <div class="frow full"><div><label>Objetivo</label>
+          <select id="nObjetivo">
+            <option value="perdida">Pérdida de grasa</option>
+            <option value="aumento">Aumento de masa muscular</option>
+            <option value="mantencion">Mantención</option>
+          </select>
+        </div></div>
+        <div class="frow full"><div><label>Enfoque calórico (elegido por el profesional)</label>
+          <select id="nEnfoque">
+            <option value="hipo">Hipocalórico (déficit)</option>
+            <option value="normo">Normocalórico (mantención)</option>
+            <option value="hiper">Hipercalórico (superávit)</option>
+          </select>
+        </div></div>
+      </div>
+      <div class="action-bar">
+        <button class="btn-pdf" id="btnDownloadNutri" onclick="downloadPDF('report-nutri', 'Pauta_Nutricional')">Descargar PDF</button>
+        <div class="hint">Genera la pauta nutricional semanal de la derecha, con alimentos económicos, y la descarga lista para enviar por WhatsApp.</div>
+      </div>
     </div>
   </aside>
 
   <!-- ============ PREVIEW / REPORT ============ -->
   <main class="preview-panel">
-    <div id="report"></div>
+    <div id="report-comp"></div>
+    <div id="report-nutri" style="display:none"></div>
   </main>
 </div>
 
@@ -222,6 +312,25 @@ function setSexo(s){
   document.getElementById('btnM').classList.toggle('active', s==='M');
   document.getElementById('btnF').classList.toggle('active', s==='F');
   render();
+}
+
+let nSexo = 'F';
+function setNSexo(s){
+  nSexo = s;
+  document.getElementById('nBtnM').classList.toggle('active', s==='M');
+  document.getElementById('nBtnF').classList.toggle('active', s==='F');
+  renderNutri();
+}
+
+function switchTab(tab){
+  const comp = tab==='comp';
+  document.getElementById('tabBtnComp').classList.toggle('active', comp);
+  document.getElementById('tabBtnNutri').classList.toggle('active', !comp);
+  document.getElementById('form-comp').style.display = comp ? '' : 'none';
+  document.getElementById('form-nutri').style.display = comp ? 'none' : '';
+  document.getElementById('report-comp').style.display = comp ? '' : 'none';
+  document.getElementById('report-nutri').style.display = comp ? 'none' : '';
+  if(!comp) renderNutri();
 }
 
 function num(id){ const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? 0 : v; }
@@ -276,6 +385,33 @@ function classify(endo, meso, ecto){
   if ((Math.max(endo,meso,ecto) - Math.min(endo,meso,ecto)) <= 1.0) return 'Central (equilibrado)';
   if (Math.abs(v1-v2) <= 0.5) return `${label[n1]}-${label[n2].toLowerCase()} balanceado`;
   return `${label[n1]} con componente ${label[n2].toLowerCase()}`;
+}
+
+// Distribución corporal estimada por zonas (superior / media / inferior), a partir de
+// proporciones antropométricas estándar (Zatsiorsky-Seluyanov / de Leva) aplicadas al total
+// de masa grasa y masa magra ya calculado. No es una medición segmentaria directa (bioimpedancia).
+const SEGMENT_MASS_FRACTION = { superior: 0.38, media: 0.22, inferior: 0.40 };
+const SEGMENT_FAT_FRACTION = {
+  M: { superior: 0.32, media: 0.36, inferior: 0.32 }, // patrón androide: más grasa en zona media
+  F: { superior: 0.26, media: 0.24, inferior: 0.50 }, // patrón ginecoide: más grasa en caderas/piernas
+};
+
+function bodySegments(peso, kgGrasa, kgMagra, sexoM){
+  const fatFrac = SEGMENT_FAT_FRACTION[sexoM ? 'M' : 'F'];
+  const zones = ['superior','media','inferior'];
+  const out = {};
+  zones.forEach(z => {
+    const segWeight = peso * SEGMENT_MASS_FRACTION[z];
+    const fatKg = kgGrasa * fatFrac[z];
+    const leanKg = kgMagra * SEGMENT_MASS_FRACTION[z];
+    out[z] = {
+      weight: segWeight,
+      fatKg, leanKg,
+      fatPct: segWeight>0 ? (fatKg/segWeight*100) : 0,
+      leanPct: segWeight>0 ? (leanKg/segWeight*100) : 0,
+    };
+  });
+  return out;
 }
 
 function calc(){
@@ -345,6 +481,26 @@ function donutSVG(pct, size){
   </svg>`;
 }
 
+function bodySegmentSVG(colorSup, colorMed, colorInf){
+  const W=140, H=290;
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <circle cx="70" cy="22" r="16" fill="${colorSup}"/>
+    <rect x="60" y="34" width="20" height="12" fill="${colorSup}"/>
+    <path d="M40,46 L100,46 L108,110 L32,110 Z" fill="${colorSup}"/>
+    <rect x="14" y="48" width="20" height="70" rx="9" fill="${colorSup}"/>
+    <rect x="106" y="48" width="20" height="70" rx="9" fill="${colorSup}"/>
+
+    <path d="M32,110 L108,110 L100,150 L40,150 Z" fill="${colorMed}"/>
+    <rect x="14" y="118" width="20" height="35" rx="9" fill="${colorMed}"/>
+    <rect x="106" y="118" width="20" height="35" rx="9" fill="${colorMed}"/>
+
+    <rect x="14" y="153" width="20" height="18" rx="9" fill="${colorInf}"/>
+    <rect x="106" y="153" width="20" height="18" rx="9" fill="${colorInf}"/>
+    <rect x="38" y="150" width="27" height="138" rx="12" fill="${colorInf}"/>
+    <rect x="75" y="150" width="27" height="138" rx="12" fill="${colorInf}"/>
+  </svg>`;
+}
+
 function somaSVG(X, Y){
   const w=180,h=180, cx=w/2, cy=h/2, scale=8;
   const xr = Math.max(9, Math.abs(X)+2), yr = Math.max(10, Math.abs(Y)+3);
@@ -387,8 +543,9 @@ function render(){
   const fatInterp = fatInterpretation(gPct, d.pgrasoYuhasz, sexo==='M', nombreShow);
   const indicesInterp = indicesInterpretation(d.imc, d.icc, sexo==='M');
   const somaDesc = somatoDescription(d.endo, d.meso, d.ecto);
+  const seg = bodySegments(d.peso, d.kggrasaDurnin, d.kgmagraDurnin, sexo==='M');
 
-  document.getElementById('report').innerHTML = `
+  document.getElementById('report-comp').innerHTML = `
     <div class="pdf-block">
     <div class="r-eyebrow">Bio-Elex · Informe de composición corporal y somatotipo</div>
     <div class="r-title">Reporte de Evaluación Corporal</div>
@@ -487,6 +644,31 @@ function render(){
     </div>
 
     <div class="pdf-block">
+    <div class="r-section"><span class="num">4</span><span class="txt">Distribución corporal por zonas (estimada)</span></div>
+    <div class="segment-row">
+      <div class="segment-body">${bodySegmentSVG('#0B4F6C','#FF6B35','#5B6B73')}</div>
+      <div class="segment-legend">
+        <div class="segment-item">
+          <span class="sdot" style="background:#0B4F6C"></span>
+          <div><div class="slabel">Tren superior</div>
+            <div class="svals"><span class="fat">${fmt1(seg.superior.fatPct)}% grasa</span> (${fmt1(seg.superior.fatKg)} kg) · <span class="lean">${fmt1(seg.superior.leanPct)}% magra</span> (${fmt1(seg.superior.leanKg)} kg)</div></div>
+        </div>
+        <div class="segment-item">
+          <span class="sdot" style="background:#FF6B35"></span>
+          <div><div class="slabel">Zona media</div>
+            <div class="svals"><span class="fat">${fmt1(seg.media.fatPct)}% grasa</span> (${fmt1(seg.media.fatKg)} kg) · <span class="lean">${fmt1(seg.media.leanPct)}% magra</span> (${fmt1(seg.media.leanKg)} kg)</div></div>
+        </div>
+        <div class="segment-item">
+          <span class="sdot" style="background:#5B6B73"></span>
+          <div><div class="slabel">Tren inferior</div>
+            <div class="svals"><span class="fat">${fmt1(seg.inferior.fatPct)}% grasa</span> (${fmt1(seg.inferior.fatKg)} kg) · <span class="lean">${fmt1(seg.inferior.leanPct)}% magra</span> (${fmt1(seg.inferior.leanKg)} kg)</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="interp-box"><div class="il">Nota</div><p>Distribución <b>estimada</b> a partir de proporciones antropométricas estándar por zona corporal, aplicadas al total de masa grasa y masa magra calculado. No reemplaza una medición segmentaria directa (bioimpedancia o DEXA); es una referencia visual orientativa.</p></div>
+    </div>
+
+    <div class="pdf-block">
     <div class="stamp-row">
       <div class="stamp-text">
         <div class="who">Alejandro Olave</div>
@@ -504,9 +686,12 @@ function render(){
   `;
 }
 
-async function downloadPDF(){
-  const btn = document.getElementById('btnDownload');
-  const hint = document.getElementById('pdfHint');
+async function downloadPDF(containerId, filePrefix){
+  containerId = containerId || 'report-comp';
+  filePrefix = filePrefix || 'Informe';
+  const isNutri = containerId === 'report-nutri';
+  const btn = document.getElementById(isNutri ? 'btnDownloadNutri' : 'btnDownload');
+  const hint = isNutri ? null : document.getElementById('pdfHint');
   const original = btn.textContent;
   btn.textContent = 'Generando…';
   btn.disabled = true;
@@ -517,7 +702,7 @@ async function downloadPDF(){
     const usableW = PAGE_W - MARGIN*2;
     const pdf = new jsPDF('p', 'mm', 'letter');
 
-    const blocks = Array.from(document.querySelectorAll('#report .pdf-block'));
+    const blocks = Array.from(document.querySelectorAll('#'+containerId+' .pdf-block'));
     let y = MARGIN;
     let firstPage = true;
 
@@ -535,18 +720,358 @@ async function downloadPDF(){
       firstPage = false;
     }
 
-    const nombre = (txt('nombre') || 'Cliente').replace(/\s+/g,'_');
-    const apellido = (txt('apellido') || '').replace(/\s+/g,'_');
-    pdf.save(`Informe_${nombre}_${apellido}.pdf`);
-    hint.textContent = 'PDF descargado ✓ — buscalo en tu carpeta de Descargas para enviarlo por WhatsApp.';
+    const nombre = (txt(isNutri?'nNombre':'nombre') || 'Cliente').replace(/\s+/g,'_');
+    const apellido = (txt(isNutri?'nApellido':'apellido') || '').replace(/\s+/g,'_');
+    pdf.save(`${filePrefix}_${nombre}_${apellido}.pdf`);
+    if(hint) hint.textContent = 'PDF descargado ✓ — buscalo en tu carpeta de Descargas para enviarlo por WhatsApp.';
   } catch(err){
-    hint.textContent = 'No se pudo generar el PDF (revisá tu conexión a internet, la app necesita cargar dos librerías la primera vez). Podés usar también Ctrl+P / Imprimir > Guardar como PDF.';
+    if(hint) hint.textContent = 'No se pudo generar el PDF (revisá tu conexión a internet). Podés usar también Ctrl+P / Imprimir > Guardar como PDF.';
     console.error(err);
   } finally {
     btn.textContent = original;
     btn.disabled = false;
   }
 }
+
+/* =================== PAUTA NUTRICIONAL =================== */
+
+// Base de alimentos económicos: valores aproximados por 100g (o unidad indicada)
+const FOOD_DB = {
+  proteina: [
+    {n:'Huevo entero',u:'unidad (50g)',g100:50,p:6.3,c:0.6,f:5.3,kcal:78},
+    {n:'Pechuga de pollo',u:'100g crudo',g100:100,p:23,c:0,f:2.7,kcal:120},
+    {n:'Atún al agua (lata)',u:'100g escurrido',g100:100,p:26,c:0,f:1,kcal:116},
+    {n:'Carne molida económica (paleta)',u:'100g crudo',g100:100,p:20,c:0,f:10,kcal:172},
+    {n:'Lentejas cocidas',u:'100g',g100:100,p:9,c:20,f:0.4,kcal:116},
+    {n:'Porotos/frijoles cocidos',u:'100g',g100:100,p:8,c:23,f:0.5,kcal:127},
+    {n:'Leche descremada',u:'100ml',g100:100,p:3.4,c:5,f:0.2,kcal:35},
+    {n:'Yogur natural descremado',u:'100g',g100:100,p:4,c:6,f:0.2,kcal:42},
+    {n:'Queso fresco / panela',u:'100g',g100:100,p:18,c:3,f:15,kcal:216},
+  ],
+  carbohidrato: [
+    {n:'Arroz blanco cocido',u:'100g',g100:100,p:2.7,c:28,f:0.3,kcal:130},
+    {n:'Avena cruda',u:'100g',g100:100,p:13,c:62,f:7,kcal:380},
+    {n:'Pan integral',u:'100g',g100:100,p:9,c:49,f:3,kcal:265},
+    {n:'Papa cocida',u:'100g',g100:100,p:2,c:17,f:0.1,kcal:77},
+    {n:'Plátano / banana',u:'100g',g100:100,p:1.1,c:23,f:0.3,kcal:89},
+    {n:'Fideos / pasta cocida',u:'100g',g100:100,p:5,c:25,f:1,kcal:131},
+    {n:'Choclo / maíz',u:'100g',g100:100,p:3.2,c:19,f:1.2,kcal:96},
+  ],
+  grasa: [
+    {n:'Aceite de oliva',u:'cucharadita (5g)',g100:5,p:0,c:0,f:5,kcal:44},
+    {n:'Maní / mantequilla de maní',u:'100g',g100:100,p:25,c:20,f:50,kcal:588},
+    {n:'Palta',u:'100g',g100:100,p:2,c:9,f:15,kcal:160},
+    {n:'Mantequilla',u:'cucharadita (10g)',g100:10,p:0.1,c:0.1,f:8.1,kcal:72},
+  ],
+};
+
+// Sub-listas para que el almuerzo/cena usen alimentos típicos de comida chilena,
+// y el desayuno/colación/merienda usen alimentos más livianos.
+const findFood = (list, name) => list.find(f => f.n === name);
+// Rotación semanal de proteínas para almuerzo/cena: se repiten más las que le gustan a la mayoría
+// (pollo, huevo, carne, atún) y las legumbres aparecen una vez por semana cada una.
+const PROT_ALMUERZO = ['Pechuga de pollo','Carne molida económica (paleta)','Atún al agua (lata)','Pechuga de pollo','Lentejas cocidas','Huevo entero','Porotos/frijoles cocidos'].map(n => findFood(FOOD_DB.proteina, n));
+const CARB_ALMUERZO = FOOD_DB.carbohidrato.filter(f => ['Arroz blanco cocido','Papa cocida','Fideos / pasta cocida','Choclo / maíz'].includes(f.n));
+const PROT_LIVIANO = FOOD_DB.proteina.filter(f => ['Huevo entero','Yogur natural descremado','Leche descremada','Queso fresco / panela'].includes(f.n));
+const CARB_LIVIANO = FOOD_DB.carbohidrato.filter(f => ['Avena cruda','Pan integral','Plátano / banana'].includes(f.n));
+const LACTEOS = FOOD_DB.proteina.filter(f => ['Leche descremada','Yogur natural descremado'].includes(f.n));
+// El aceite de oliva se reserva para almuerzo/cena; el desayuno y la merienda usan otras grasas saludables
+const FAT_ALMUERZO = FOOD_DB.grasa.filter(f => ['Aceite de oliva','Palta'].includes(f.n));
+const FAT_LIVIANO = FOOD_DB.grasa.filter(f => ['Maní / mantequilla de maní','Mantequilla','Palta'].includes(f.n));
+
+// Platos típicos chilenos según la proteína y el carbohidrato asignado (fáciles de preparar)
+const CHILEAN_DISHES = {
+  'Pechuga de pollo': {
+    'Arroz blanco cocido': [
+      {t:'Pollo al horno con arroz', p:'Hornear la pechuga sazonada 25-30 min; acompañar con arroz blanco y ensalada.'},
+      {t:'Arroz con pollo salteado (estilo wok)', p:'Saltear el pollo en cubos con verduras y salsa de soya; mezclar con el arroz.'},
+    ],
+    'Papa cocida': [
+      {t:'Pollo a la plancha con puré', p:'Cocinar el pollo a la plancha; acompañar con puré de papa.'},
+      {t:'Pollo al curry suave con papas', p:'Pollo salteado con curry y leche o crema light; acompañar con papas cocidas.'},
+    ],
+    'Fideos / pasta cocida': [
+      {t:'Pollo con tallarines', p:'Pollo a la plancha o salteado, servido con tallarines y salsa liviana.'},
+      {t:'Espagueti con pollo y salsa de tomate', p:'Pollo desmenuzado salteado con salsa de tomate casera, sobre espagueti.'},
+    ],
+    'Choclo / maíz': [
+      {t:'Pollo con choclo y ensalada', p:'Pollo al horno o plancha, acompañado de choclo y ensalada fresca.'},
+      {t:'Bowl de pollo con choclo y palta', p:'Pollo en cubos, choclo, palta y verduras crudas en un mismo bowl.'},
+    ],
+  },
+  'Carne molida económica (paleta)': {
+    'Arroz blanco cocido': [
+      {t:'Arroz a la cubana', p:'Saltear la carne con cebolla y tomate; servir sobre arroz con huevo frito.'},
+      {t:'Arroz con carne y verduras salteadas', p:'Saltear la carne molida con verduras variadas; mezclar con el arroz.'},
+    ],
+    'Papa cocida': [
+      {t:'Charquicán', p:'Guisar la carne con zapallo, papa y verduras; sazonar a gusto.'},
+      {t:'Puré con carne a la napolitana', p:'Carne molida con salsa de tomate y queso gratinado; acompañar con puré.'},
+    ],
+    'Fideos / pasta cocida': [
+      {t:'Tallarines con salsa de carne', p:'Salsa de carne molida con tomate y cebolla, servida sobre tallarines.'},
+      {t:'Espagueti a la boloñesa casera', p:'Carne molida cocida a fuego lento con tomate, zanahoria y cebolla; servir sobre espagueti.'},
+    ],
+    'Choclo / maíz': [
+      {t:'Pastel de choclo rápido', p:'Carne molida salteada con cebolla, cubierta con choclo molido; horno 20 min.'},
+      {t:'Carne con choclo salteado y ensalada', p:'Carne molida salteada con choclo desgranado; acompañar con ensalada fresca.'},
+    ],
+  },
+  'Atún al agua (lata)': {
+    default: [
+      {t:'Ensalada de atún', p:'Mezclar el atún con la porción de carbohidrato y verduras a elección; aliñar con limón y aceite.'},
+      {t:'Wrap o sándwich de atún', p:'Atún mezclado con un toque de mayonesa light o palta, en pan o tortilla, con verduras.'},
+    ],
+  },
+  'Lentejas cocidas': {
+    default: [
+      {t:'Lentejas guisadas', p:'Guisar las lentejas con cebolla, zanahoria y zapallo; acompañar con arroz si corresponde.'},
+      {t:'Ensalada tibia de lentejas', p:'Lentejas cocidas mezcladas con verduras salteadas, limón y aceite de oliva.'},
+    ],
+  },
+  'Porotos/frijoles cocidos': {
+    default: [
+      {t:'Porotos con riendas', p:'Guisar los porotos con zapallo; si hay fideos, agregarlos al final de la cocción.'},
+      {t:'Bowl de porotos estilo burrito', p:'Porotos, arroz, verduras salteadas y salsa picante a elección, todo en un bowl.'},
+    ],
+  },
+  'Huevo entero': {
+    default: [
+      {t:'Arroz con huevo y ensalada', p:'Huevo frito o revuelto, acompañado de la porción de carbohidrato y ensalada fresca.'},
+      {t:'Tortilla de verduras', p:'Huevos batidos con verduras salteadas, cocidos en sartén como tortilla; acompañar con el carbohidrato indicado.'},
+    ],
+  },
+  'Queso fresco / panela': {
+    default: [
+      {t:'Ensalada completa con queso fresco', p:'Queso fresco en cubos con la porción de carbohidrato y verduras variadas.'},
+      {t:'Sándwich o wrap con queso fresco', p:'Queso fresco con verduras frescas y un toque de aceite de oliva, en pan o tortilla.'},
+    ],
+  },
+};
+
+function chileanDish(protName, carbName, dayIdx){
+  const entry = CHILEAN_DISHES[protName];
+  const fallback = {t:`${protName} con ${carbName.toLowerCase()}`, p:'Cocinar la proteína a la plancha u horno; acompañar con el carbohidrato indicado y verduras a elección.'};
+  if(!entry) return fallback;
+  const options = entry[carbName] || entry.default;
+  if(!options) return fallback;
+  return options[(dayIdx||0) % options.length];
+}
+
+function bmr(peso, talla, edad, sexoM){
+  return sexoM ? (10*peso + 6.25*talla - 5*edad + 5) : (10*peso + 6.25*talla - 5*edad - 161);
+}
+
+function calcNutriPlan(){
+  const peso = num('nPeso'), talla = num('nTalla'), edad = num('nEdad');
+  const actFactor = parseFloat(document.getElementById('nActividad').value);
+  const objetivo = document.getElementById('nObjetivo').value;
+  const enfoque = document.getElementById('nEnfoque').value;
+  const sexoM = nSexo === 'M';
+
+  const tmb = bmr(peso, talla, edad, sexoM);
+  const tdee = tmb * actFactor;
+
+  let kcalObjetivo;
+  if (enfoque === 'hipo') kcalObjetivo = tdee * 0.80;
+  else if (enfoque === 'hiper') kcalObjetivo = tdee * 1.15;
+  else kcalObjetivo = tdee;
+
+  // g de proteína por kg según objetivo (prioriza preservar/ganar músculo)
+  let protPorKg;
+  if (objetivo === 'perdida') protPorKg = 2.2;
+  else if (objetivo === 'aumento') protPorKg = 2.0;
+  else protPorKg = 1.8;
+
+  const proteinG = peso * protPorKg;
+  const fatG = peso * 0.9;
+  const proteinKcal = proteinG * 4;
+  const fatKcal = fatG * 9;
+  let carbKcal = kcalObjetivo - proteinKcal - fatKcal;
+  if (carbKcal < 0) carbKcal = kcalObjetivo * 0.35; // resguardo si el déficit es muy agresivo
+  const carbG = carbKcal / 4;
+
+  return { peso, talla, edad, sexoM, tmb, tdee, kcalObjetivo, proteinG, fatG, carbG,
+           proteinKcal, fatKcal: fatG*9, carbKcal: carbG*4, actFactor, objetivo, enfoque };
+}
+
+const MEAL_SPLIT_4 = [
+  {n:'Desayuno', pct:0.30},
+  {n:'Almuerzo', pct:0.35},
+  {n:'Merienda', pct:0.15},
+  {n:'Cena', pct:0.20},
+];
+
+const MEAL_SPLIT_5 = [
+  {n:'Desayuno', pct:0.27},
+  {n:'Colación AM', pct:0.10},
+  {n:'Almuerzo', pct:0.28},
+  {n:'Merienda', pct:0.13},
+  {n:'Cena', pct:0.22},
+];
+
+function mealSplitFor(plan){
+  // 5 comidas para hipercalórico o aumento de masa muscular; 4 comidas para hipocalórico o pérdida de grasa
+  const usa5 = plan.enfoque === 'hiper' || plan.objetivo === 'aumento';
+  return usa5 ? MEAL_SPLIT_5 : MEAL_SPLIT_4;
+}
+
+function pickFood(list, idx){ return list[idx % list.length]; }
+
+function gramsForMacro(food, macroKey, gramsNeeded){
+  // gramsNeeded = gramos del macro (p, c o f) que debe aportar el alimento
+  const per100 = food[macroKey];
+  if (!per100 || per100<=0) return 0;
+  const grams = (gramsNeeded / per100) * food.g100;
+  return Math.max(0, Math.round(grams/5)*5);
+}
+
+function foodKcalForGrams(food, grams){
+  return Math.round((grams/food.g100) * food.kcal);
+}
+
+function buildWeekPlan(plan){
+  const days = [];
+  const dayNames = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  const mealSplit = mealSplitFor(plan);
+  const MAIN_MEALS = ['Almuerzo','Cena'];
+  for (let d=0; d<7; d++){
+    const meals = mealSplit.map((meal, mi) => {
+      const idx = d + mi;
+      const isMain = MAIN_MEALS.includes(meal.n);
+      const protList = isMain ? PROT_ALMUERZO : PROT_LIVIANO;
+      const carbList = isMain ? CARB_ALMUERZO : CARB_LIVIANO;
+      const protFood0 = pickFood(protList, idx);
+      const carbFood = pickFood(carbList, idx + d);
+      // La avena queda mejor como mezcla con un lácteo (leche o yogur) en vez de otra proteína suelta
+      const protFood = (!isMain && carbFood.n === 'Avena cruda') ? pickFood(LACTEOS, idx) : protFood0;
+      const fatFood = pickFood(isMain ? FAT_ALMUERZO : FAT_LIVIANO, idx);
+
+      const protGramsNeeded = plan.proteinG * meal.pct;
+      const carbGramsNeeded = plan.carbG * meal.pct;
+      const fatGramsNeeded = plan.fatG * meal.pct * 0.5; // la mitad de la grasa viene de las fuentes proteicas/carb también
+
+      const gProt = gramsForMacro(protFood, 'p', protGramsNeeded);
+      const gCarb = gramsForMacro(carbFood, 'c', carbGramsNeeded);
+      const gFat = gramsForMacro(fatFood, 'f', fatGramsNeeded);
+
+      const items = [
+        {food:protFood, grams:gProt},
+        {food:carbFood, grams:gCarb},
+        {food:fatFood, grams:gFat},
+      ];
+      const kcalMeal = items.reduce((s,it)=>s+foodKcalForGrams(it.food,it.grams),0);
+      const dish = isMain ? chileanDish(protFood.n, carbFood.n, d) : null;
+      const isAvenaCombo = !isMain && carbFood.n === 'Avena cruda';
+      return {label:meal.n, items, kcal:kcalMeal, isMain, dish, isAvenaCombo};
+    });
+    const kcalDay = meals.reduce((s,m)=>s+m.kcal,0);
+    days.push({label:dayNames[d], meals, kcal:kcalDay});
+  }
+  return days;
+}
+
+function foodDisplay(food, grams){
+  if (food.u.startsWith('unidad')) {
+    const units = grams / food.g100;
+    const rounded = Math.round(units*2)/2;
+    return `${food.n}: <b>${rounded} u.</b> (${grams} g)`;
+  }
+  return `${food.n}: <b>${grams} g</b>`;
+}
+
+function objetivoLabel(o){
+  return {perdida:'Pérdida de grasa', aumento:'Aumento de masa muscular', mantencion:'Mantención'}[o] || o;
+}
+function enfoqueLabel(e){
+  return {hipo:'Hipocalórico (déficit)', normo:'Normocalórico (mantención)', hiper:'Hipercalórico (superávit)'}[e] || e;
+}
+
+function renderNutri(){
+  const plan = calcNutriPlan();
+  const week = buildWeekPlan(plan);
+  const nombreCompleto = (document.getElementById('nNombre').value+' '+document.getElementById('nApellido').value).trim() || '—';
+
+  const daysHTML = week.map(day => `
+    <div class="pdf-block day-card">
+      <div class="day-head">${day.label} · ${Math.round(day.kcal)} kcal aprox.</div>
+      ${day.meals.map(m => `
+        <div class="meal-row">
+          <div class="mname">${m.label}</div>
+          <div class="mfoods">
+            ${m.isMain && m.dish ? `<div class="dish-title">${m.dish.t}</div><div class="dish-prep">${m.dish.p}</div><div class="dish-ing">Ingredientes: ${m.items.filter(it=>it.grams>0).map(it=>foodDisplay(it.food, it.grams)).join(' · ')}</div>` : (m.isAvenaCombo ? `<div class="dish-title" style="color:var(--petrol); font-size:12.5px">Avena con ${m.items[0].food.n.toLowerCase()}</div><div class="dish-ing">${m.items.filter(it=>it.grams>0).map(it=>foodDisplay(it.food, it.grams)).join(' · ')}</div>` : m.items.filter(it=>it.grams>0).map(it=>foodDisplay(it.food, it.grams)).join(' · '))}
+            <div class="fkcal">≈ ${m.kcal} kcal</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  document.getElementById('report-nutri').innerHTML = `
+    <div class="pdf-block">
+    <div class="r-eyebrow">Bio-Elex · Pauta nutricional semanal</div>
+    <div class="r-title">Pauta Nutricional</div>
+    <div class="r-subtitle">Basada en macronutrientes · Alimentos económicos</div>
+
+    <div class="patient-grid">
+      <div class="pcell"><div class="pl">Nombre y apellido</div><div class="pv">${nombreCompleto}</div></div>
+      <div class="pcell"><div class="pl">Objetivo</div><div class="pv" style="font-size:13px">${objetivoLabel(plan.objetivo)}</div></div>
+      <div class="pcell"><div class="pl">Enfoque</div><div class="pv" style="font-size:13px">${enfoqueLabel(plan.enfoque)}</div></div>
+      <div class="pcell"><div class="pl">Peso</div><div class="pv">${fmt1(plan.peso)} kg</div></div>
+    </div>
+
+    <div class="kcal-hero">
+      <div class="big">${Math.round(plan.kcalObjetivo)} kcal / día</div>
+      <div class="small">Gasto energético estimado (TDEE): ${Math.round(plan.tdee)} kcal · TMB: ${Math.round(plan.tmb)} kcal</div>
+    </div>
+
+    <div class="macro-cards">
+      <div class="macro-card" style="background:var(--petrol)">
+        <div class="mv">${Math.round(plan.proteinG)} g</div>
+        <div class="ml">Proteína</div>
+        <div class="mp">${Math.round(plan.proteinKcal)} kcal</div>
+      </div>
+      <div class="macro-card" style="background:var(--coral)">
+        <div class="mv">${Math.round(plan.carbG)} g</div>
+        <div class="ml">Carbohidratos</div>
+        <div class="mp">${Math.round(plan.carbKcal)} kcal</div>
+      </div>
+      <div class="macro-card" style="background:#5B6B73">
+        <div class="mv">${Math.round(plan.fatG)} g</div>
+        <div class="ml">Grasas</div>
+        <div class="mp">${Math.round(plan.fatKcal)} kcal</div>
+      </div>
+    </div>
+    <div class="interp-box"><div class="il">Nota</div><p>Distribución calculada según el enfoque <b>${enfoqueLabel(plan.enfoque)}</b> elegido para el objetivo de <b>${objetivoLabel(plan.objetivo).toLowerCase()}</b>, repartida en <b>${week[0].meals.length} comidas diarias</b> (${week[0].meals.length===5?'5 comidas para favorecer el mayor aporte calórico':'4 comidas, ideal para un enfoque de déficit'}). Las cantidades de cada alimento son orientativas y pueden intercambiarse por otros de la misma categoría (proteína / carbohidrato / grasa) en porciones similares.</p></div>
+    </div>
+
+    <div class="pdf-block">
+    <div class="r-section"><span class="num">2</span><span class="txt">Plan semanal — alimentos económicos</span></div>
+    </div>
+    ${daysHTML}
+
+    <div class="pdf-block">
+    <div class="stamp-row">
+      <div class="stamp-text">
+        <div class="who">Alejandro Olave</div>
+        <div class="role">Preparador Físico</div>
+        <div class="made">Documento elaborado por Bio-Elex</div>
+      </div>
+      <img class="stamp-img" src="data:image/png;base64,${LOGO_B64}" alt="Sello Bio-Elex">
+    </div>
+    <div class="r-footer">
+      Pauta orientativa, calculada con fórmula de Mifflin-St Jeor y distribución de macronutrientes estándar. No reemplaza la evaluación de un nutricionista matriculado, especialmente ante patologías, embarazo o necesidades clínicas específicas.
+    </div>
+    </div>
+  `;
+}
+
+document.getElementById('nActividad').addEventListener('change', renderNutri);
+document.getElementById('nObjetivo').addEventListener('change', renderNutri);
+document.getElementById('nEnfoque').addEventListener('change', renderNutri);
+['nNombre','nApellido','nEdad','nPeso','nTalla'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderNutri);
+});
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
