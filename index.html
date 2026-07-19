@@ -289,6 +289,12 @@
             <option value="hiper">Hipercalórico (superávit)</option>
           </select>
         </div></div>
+        <div class="frow full"><div><label>Duración del plan</label>
+          <select id="nDuracion">
+            <option value="semana">1 semana</option>
+            <option value="mes">1 mes (2 menús alternados: sem. 1-3 y 2-4)</option>
+          </select>
+        </div></div>
       </div>
       <div class="action-bar">
         <button class="btn-pdf" id="btnDownloadNutri" onclick="downloadPDF('report-nutri', 'Pauta_Nutricional')">Descargar PDF</button>
@@ -947,7 +953,8 @@ function foodKcalForGrams(food, grams){
   return Math.round((grams/food.g100) * food.kcal);
 }
 
-function buildWeekPlan(plan){
+function buildWeekPlan(plan, seedOffset){
+  seedOffset = seedOffset || 0;
   const days = [];
   const dayNames = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
   const mealSplit = mealSplitFor(plan);
@@ -956,7 +963,7 @@ function buildWeekPlan(plan){
   const CENA_ONLY = ['Cena'];
   for (let d=0; d<7; d++){
     const meals = mealSplit.map((meal, mi) => {
-      const idx = d + mi;
+      const idx = d + mi + seedOffset;
       const isMain = MAIN_MEALS.includes(meal.n);
       const isLunch = ALMUERZO_ONLY.includes(meal.n);
       const isDinner = CENA_ONLY.includes(meal.n);
@@ -1008,12 +1015,8 @@ function enfoqueLabel(e){
   return {hipo:'Hipocalórico (déficit)', normo:'Normocalórico (mantención)', hiper:'Hipercalórico (superávit)'}[e] || e;
 }
 
-function renderNutri(){
-  const plan = calcNutriPlan();
-  const week = buildWeekPlan(plan);
-  const nombreCompleto = (document.getElementById('nNombre').value+' '+document.getElementById('nApellido').value).trim() || '—';
-
-  const daysHTML = week.map(day => `
+function renderDaysHTML(week){
+  return week.map(day => `
     <div class="pdf-block day-card">
       <div class="day-head">${day.label} · ${Math.round(day.kcal)} kcal aprox.</div>
       ${day.meals.map(m => `
@@ -1027,12 +1030,41 @@ function renderNutri(){
       `).join('')}
     </div>
   `).join('');
+}
+
+function renderNutri(){
+  const plan = calcNutriPlan();
+  const duracion = document.getElementById('nDuracion').value;
+  const weekA = buildWeekPlan(plan, 0);
+  const nombreCompleto = (document.getElementById('nNombre').value+' '+document.getElementById('nApellido').value).trim() || '—';
+
+  let planSectionHTML;
+  if (duracion === 'mes') {
+    const weekB = buildWeekPlan(plan, 3);
+    planSectionHTML = `
+      <div class="pdf-block">
+      <div class="r-section"><span class="num">2</span><span class="txt">Menú A — Semanas 1 y 3</span></div>
+      </div>
+      ${renderDaysHTML(weekA)}
+      <div class="pdf-block">
+      <div class="r-section"><span class="num">3</span><span class="txt">Menú B — Semanas 2 y 4</span></div>
+      </div>
+      ${renderDaysHTML(weekB)}
+    `;
+  } else {
+    planSectionHTML = `
+      <div class="pdf-block">
+      <div class="r-section"><span class="num">2</span><span class="txt">Plan semanal</span></div>
+      </div>
+      ${renderDaysHTML(weekA)}
+    `;
+  }
 
   document.getElementById('report-nutri').innerHTML = `
     <div class="pdf-block">
-    <div class="r-eyebrow">Bio-Elex · Pauta nutricional semanal</div>
+    <div class="r-eyebrow">Bio-Elex · Pauta nutricional${duracion==='mes' ? ' mensual' : ' semanal'}</div>
     <div class="r-title">Pauta Nutricional</div>
-    <div class="r-subtitle">Basada en macronutrientes · Alimentos económicos</div>
+    <div class="r-subtitle">Basada en macronutrientes${duracion==='mes' ? ' · Plan de 1 mes (2 menús alternados)' : ''}</div>
 
     <div class="patient-grid">
       <div class="pcell"><div class="pl">Nombre y apellido</div><div class="pv">${nombreCompleto}</div></div>
@@ -1063,13 +1095,10 @@ function renderNutri(){
         <div class="mp">${Math.round(plan.fatKcal)} kcal</div>
       </div>
     </div>
-    <div class="interp-box"><div class="il">Nota</div><p>Distribución calculada según el enfoque <b>${enfoqueLabel(plan.enfoque)}</b> elegido para el objetivo de <b>${objetivoLabel(plan.objetivo).toLowerCase()}</b>, repartida en <b>${week[0].meals.length} comidas diarias</b> (${week[0].meals.length===5?'5 comidas para favorecer el mayor aporte calórico':'4 comidas, ideal para un enfoque de déficit'}). Las cantidades de cada alimento son orientativas y pueden intercambiarse por otros de la misma categoría (proteína / carbohidrato / grasa) en porciones similares.</p></div>
+    <div class="interp-box"><div class="il">Nota</div><p>Distribución calculada según el enfoque <b>${enfoqueLabel(plan.enfoque)}</b> elegido para el objetivo de <b>${objetivoLabel(plan.objetivo).toLowerCase()}</b>, repartida en <b>${weekA[0].meals.length} comidas diarias</b> (${weekA[0].meals.length===5?'5 comidas para favorecer el mayor aporte calórico':'4 comidas, ideal para un enfoque de déficit'}).${duracion==='mes' ? ' Plan mensual dividido en dos menús que se alternan: el <b>Menú A</b> se repite en las semanas 1 y 3, y el <b>Menú B</b> en las semanas 2 y 4, para variar el plan sin extender demasiado el documento.' : ''} Las cantidades de cada alimento son orientativas y pueden intercambiarse por otros de la misma categoría (proteína / carbohidrato / grasa) en porciones similares.</p></div>
     </div>
 
-    <div class="pdf-block">
-    <div class="r-section"><span class="num">2</span><span class="txt">Plan semanal</span></div>
-    </div>
-    ${daysHTML}
+    ${planSectionHTML}
 
     <div class="pdf-block">
     <div class="stamp-row">
@@ -1081,6 +1110,7 @@ function renderNutri(){
       <img class="stamp-img" src="data:image/png;base64,${LOGO_B64}" alt="Sello Bio-Elex">
     </div>
     <div class="r-footer">
+
       Pauta orientativa, calculada con fórmula de Mifflin-St Jeor y distribución de macronutrientes estándar. No reemplaza la evaluación de un nutricionista matriculado, especialmente ante patologías, embarazo o necesidades clínicas específicas.
     </div>
     </div>
@@ -1090,6 +1120,7 @@ function renderNutri(){
 document.getElementById('nActividad').addEventListener('change', renderNutri);
 document.getElementById('nObjetivo').addEventListener('change', renderNutri);
 document.getElementById('nEnfoque').addEventListener('change', renderNutri);
+document.getElementById('nDuracion').addEventListener('change', renderNutri);
 ['nNombre','nApellido','nEdad','nPeso','nTalla'].forEach(id => {
   document.getElementById(id).addEventListener('input', renderNutri);
 });
