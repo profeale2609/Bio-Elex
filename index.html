@@ -296,6 +296,18 @@
           </select>
         </div></div>
       </div>
+      <div class="fgroup">
+        <div class="fgroup-label">Estación del año <span class="n">04</span></div>
+        <div class="frow"><div><label>Fecha de evaluación</label><input id="nFechaEval" type="date"></div>
+        <div><label>Estación (auto, editable)</label>
+          <select id="nEstacion">
+            <option value="verano">Verano</option>
+            <option value="otono">Otoño</option>
+            <option value="invierno">Invierno</option>
+            <option value="primavera">Primavera</option>
+          </select>
+        </div></div>
+      </div>
       <div class="action-bar">
         <button class="btn-pdf" id="btnDownloadNutri" onclick="downloadPDF('report-nutri', 'Pauta_Nutricional')">Descargar PDF</button>
         <div class="hint">Genera la pauta nutricional semanal de la derecha, con alimentos económicos, y la descarga lista para enviar por WhatsApp.</div>
@@ -778,6 +790,25 @@ const findFood = (list, name) => list.find(f => f.n === name);
 // (pollo, huevo, carne, atún) y las legumbres aparecen una vez por semana cada una.
 const PROT_ALMUERZO = ['Pechuga de pollo','Carne molida (paleta)','Atún al agua (lata)','Pechuga de pollo','Lentejas cocidas','Huevo entero','Porotos/frijoles cocidos'].map(n => findFood(FOOD_DB.proteina, n));
 const CARB_ALMUERZO = FOOD_DB.carbohidrato.filter(f => ['Arroz blanco cocido','Papa cocida','Fideos / pasta cocida','Choclo / maíz'].includes(f.n));
+// Variantes de carbohidrato de almuerzo/cena según estación (hemisferio sur / Chile)
+const CARB_ALMUERZO_SEASON = {
+  verano:    ['Choclo / maíz','Arroz blanco cocido','Papa cocida','Choclo / maíz'].map(n => findFood(FOOD_DB.carbohidrato, n)),
+  otono:     ['Papa cocida','Choclo / maíz','Fideos / pasta cocida','Arroz blanco cocido'].map(n => findFood(FOOD_DB.carbohidrato, n)),
+  invierno:  ['Papa cocida','Arroz blanco cocido','Fideos / pasta cocida','Papa cocida'].map(n => findFood(FOOD_DB.carbohidrato, n)),
+  primavera: ['Arroz blanco cocido','Papa cocida','Choclo / maíz','Fideos / pasta cocida'].map(n => findFood(FOOD_DB.carbohidrato, n)),
+};
+function seasonFromDate(dateStr){
+  if(!dateStr) return 'verano';
+  const month = parseInt(dateStr.split('-')[1], 10); // 1-12
+  // Hemisferio sur (Chile)
+  if ([12,1,2].includes(month)) return 'verano';
+  if ([3,4,5].includes(month)) return 'otono';
+  if ([6,7,8].includes(month)) return 'invierno';
+  return 'primavera';
+}
+function seasonLabel(s){
+  return {verano:'Verano', otono:'Otoño', invierno:'Invierno', primavera:'Primavera'}[s] || s;
+}
 const PROT_LIVIANO = FOOD_DB.proteina.filter(f => ['Huevo entero','Yogur natural descremado','Leche descremada','Queso fresco / panela'].includes(f.n));
 const CARB_LIVIANO = FOOD_DB.carbohidrato.filter(f => ['Avena cruda','Pan integral','Plátano / banana'].includes(f.n));
 const LACTEOS = FOOD_DB.proteina.filter(f => ['Leche descremada','Yogur natural descremado'].includes(f.n));
@@ -890,6 +921,7 @@ function calcNutriPlan(){
   const actFactor = parseFloat(document.getElementById('nActividad').value);
   const objetivo = document.getElementById('nObjetivo').value;
   const enfoque = document.getElementById('nEnfoque').value;
+  const estacion = document.getElementById('nEstacion').value;
   const sexoM = nSexo === 'M';
 
   const tmb = bmr(peso, talla, edad, sexoM);
@@ -915,7 +947,7 @@ function calcNutriPlan(){
   const carbG = carbKcal / 4;
 
   return { peso, talla, edad, sexoM, tmb, tdee, kcalObjetivo, proteinG, fatG, carbG,
-           proteinKcal, fatKcal: fatG*9, carbKcal: carbG*4, actFactor, objetivo, enfoque };
+           proteinKcal, fatKcal: fatG*9, carbKcal: carbG*4, actFactor, objetivo, enfoque, estacion };
 }
 
 const MEAL_SPLIT_4 = [
@@ -968,7 +1000,7 @@ function buildWeekPlan(plan, seedOffset){
       const isLunch = ALMUERZO_ONLY.includes(meal.n);
       const isDinner = CENA_ONLY.includes(meal.n);
       const protList = isLunch ? PROT_ALMUERZO : (isDinner ? PROT_CENA : PROT_LIVIANO);
-      const carbList = isLunch ? CARB_ALMUERZO : (isDinner ? CARB_CENA : CARB_LIVIANO);
+      const carbList = isLunch ? (CARB_ALMUERZO_SEASON[plan.estacion] || CARB_ALMUERZO) : (isDinner ? CARB_CENA : CARB_LIVIANO);
       const protFood0 = pickFood(protList, idx);
       const carbFood = pickFood(carbList, idx + d);
       // La avena queda mejor como mezcla con un lácteo (leche o yogur) en vez de otra proteína suelta
@@ -1072,6 +1104,9 @@ function renderNutri(){
       <div class="pcell"><div class="pl">Enfoque</div><div class="pv" style="font-size:13px">${enfoqueLabel(plan.enfoque)}</div></div>
       <div class="pcell"><div class="pl">Peso</div><div class="pv">${fmt1(plan.peso)} kg</div></div>
     </div>
+    <div class="patient-grid row2">
+      <div class="pcell"><div class="pl">Estación del año</div><div class="pv" style="font-size:13px">${seasonLabel(plan.estacion)}</div></div>
+    </div>
 
     <div class="kcal-hero">
       <div class="big">${Math.round(plan.kcalObjetivo)} kcal / día</div>
@@ -1121,6 +1156,11 @@ document.getElementById('nActividad').addEventListener('change', renderNutri);
 document.getElementById('nObjetivo').addEventListener('change', renderNutri);
 document.getElementById('nEnfoque').addEventListener('change', renderNutri);
 document.getElementById('nDuracion').addEventListener('change', renderNutri);
+document.getElementById('nFechaEval').addEventListener('change', () => {
+  document.getElementById('nEstacion').value = seasonFromDate(document.getElementById('nFechaEval').value);
+  renderNutri();
+});
+document.getElementById('nEstacion').addEventListener('change', renderNutri);
 ['nNombre','nApellido','nEdad','nPeso','nTalla'].forEach(id => {
   document.getElementById(id).addEventListener('input', renderNutri);
 });
@@ -1132,6 +1172,14 @@ if ('serviceWorker' in navigator) {
 }
 
 // live update on any input change
+// Fecha y estación por defecto: hoy
+(() => {
+  const today = new Date();
+  const iso = today.toISOString().slice(0,10);
+  document.getElementById('nFechaEval').value = iso;
+  document.getElementById('nEstacion').value = seasonFromDate(iso);
+})();
+
 document.querySelectorAll('input').forEach(el => el.addEventListener('input', render));
 render();
 </script>
